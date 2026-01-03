@@ -33,12 +33,13 @@ sudo dpkg -i kiro-cli.deb
 sudo apt-get install -f
 ```
 
-**Linux (AppImage):**
-```bash
-wget https://desktop-release.q.us-east-1.amazonaws.com/latest/kiro-cli.appimage
-chmod +x kiro-cli.appimage
-./kiro-cli.appimage
-```
+**Windows:**
+1. Install Ubuntu through WSL (Windows Subsystem for Linux):
+   - Open PowerShell as Administrator
+   - Run: `wsl --install`
+   - Restart computer when prompted
+   - Ubuntu will be installed automatically
+2. Once Ubuntu is set up, use the Linux installation method above
 
 ### Authentication
 ```bash

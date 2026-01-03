@@ -20,7 +20,7 @@ Start by gathering codebase context to understand the codebase standards and pat
 Start by examining:
 
 - README.md
-- README.md
+- PRD.md if found
 - Key files in the /core module
 - Documented standards in the /docs directory
 
