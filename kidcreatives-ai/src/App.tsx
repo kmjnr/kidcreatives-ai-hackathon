@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { HandshakePhase } from '@/components/phases/HandshakePhase'
 import { PromptBuilderPhase } from '@/components/phases/PromptBuilderPhase'
+import { GenerationPhase } from '@/components/phases/GenerationPhase'
 import { Phase } from '@/types/PhaseTypes'
 
 interface PhaseData {
@@ -9,6 +10,7 @@ interface PhaseData {
   intentStatement: string
   visionAnalysis: string | null
   promptStateJSON: string | null
+  generatedImage: string | null
 }
 
 function App() {
@@ -18,7 +20,8 @@ function App() {
     imageMimeType: 'image/jpeg',
     intentStatement: '',
     visionAnalysis: null,
-    promptStateJSON: null
+    promptStateJSON: null,
+    generatedImage: null
   })
 
   // Redirect to Handshake if Phase 2 is missing required data
@@ -27,6 +30,13 @@ function App() {
       setCurrentPhase(Phase.Handshake)
     }
   }, [currentPhase, phaseData.originalImage, phaseData.visionAnalysis])
+
+  // Redirect to Handshake if Phase 3 is missing required data
+  useEffect(() => {
+    if (currentPhase === Phase.Generation && (!phaseData.originalImage || !phaseData.promptStateJSON)) {
+      setCurrentPhase(Phase.Handshake)
+    }
+  }, [currentPhase, phaseData.originalImage, phaseData.promptStateJSON])
 
   const handleHandshakeComplete = (
     image: string,
@@ -53,10 +63,40 @@ function App() {
       ...prev,
       promptStateJSON
     }))
-    console.log('Phase 2 complete! Prompt State:', promptStateJSON)
+    setCurrentPhase(Phase.Generation)
+  }
+
+  const handleGenerationBack = () => {
+    setCurrentPhase(Phase.PromptBuilder)
+  }
+
+  const handleGenerationComplete = (generatedImageBase64: string) => {
+    setPhaseData(prev => ({
+      ...prev,
+      generatedImage: generatedImageBase64
+    }))
+    // TODO: Transition to Phase.Refinement when implemented
+    if (import.meta.env.DEV) {
+      console.log('Phase 3 complete! Generated image:', generatedImageBase64.substring(0, 50) + '...')
+    }
   }
 
   switch (currentPhase) {
+    case Phase.Generation:
+      if (!phaseData.originalImage || !phaseData.promptStateJSON) {
+        // Redirect handled by useEffect
+        return null
+      }
+      return (
+        <GenerationPhase
+          originalImage={phaseData.originalImage}
+          imageMimeType={phaseData.imageMimeType}
+          promptStateJSON={phaseData.promptStateJSON}
+          onBack={handleGenerationBack}
+          onNext={handleGenerationComplete}
+        />
+      )
+
     case Phase.PromptBuilder:
       if (!phaseData.originalImage || !phaseData.visionAnalysis) {
         return null // Will redirect via useEffect

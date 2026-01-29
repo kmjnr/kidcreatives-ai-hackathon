@@ -38,3 +38,28 @@ export interface VisionAnalysisResult {
   confidence: string
   suggestions?: string[]
 }
+
+// Reserved for future configuration options when gemini-2.5-flash-image supports them
+// Currently unused - gemini-2.5-flash-image doesn't accept configuration parameters
+export interface ImageGenerationConfig {
+  sampleCount?: number // 1-4, default 4
+  imageSize?: '1K' | '2K' // default '1K'
+  aspectRatio?: '1:1' | '3:4' | '4:3' | '9:16' | '16:9' // default '1:1'
+  personGeneration?: 'dont_allow' | 'allow_adult' | 'allow_all' // default 'allow_adult'
+}
+
+// Imagen API response
+export interface ImageGenerationResult {
+  imageBytes: string // base64 encoded PNG
+  mimeType: string // 'image/png'
+  prompt: string // The synthesized prompt used
+}
+
+// Error response from Imagen API
+export interface ImageGenerationError {
+  error: {
+    code: number
+    message: string
+    status: string
+  }
+}

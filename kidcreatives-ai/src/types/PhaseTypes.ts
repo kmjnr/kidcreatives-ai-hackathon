@@ -6,6 +6,8 @@ export enum Phase {
   Trophy = 'trophy'
 }
 
+import type { ImageGenerationResult } from './GeminiTypes'
+
 export interface HandshakeState {
   uploadedImage: string | null // base64 or URL
   intentStatement: string
@@ -25,4 +27,11 @@ export interface PromptBuilderState {
   isComplete: boolean
   currentQuestionIndex: number
   totalQuestions: number
+}
+
+export interface GenerationState {
+  synthesizedPrompt: string | null
+  generatedImage: ImageGenerationResult | null
+  isGenerating: boolean
+  error: string | null
 }
