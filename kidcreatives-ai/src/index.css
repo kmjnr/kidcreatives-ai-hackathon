@@ -11,3 +11,13 @@
     @apply bg-gray-50 text-gray-900;
   }
 }
+
+@keyframes shine {
+  to {
+    transform: translateX(200%);
+  }
+}
+
+.animate-shine {
+  animation: shine 3s ease-in-out infinite;
+}

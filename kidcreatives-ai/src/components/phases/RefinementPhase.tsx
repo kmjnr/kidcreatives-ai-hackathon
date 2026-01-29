@@ -14,7 +14,7 @@ interface RefinementPhaseProps {
   imageMimeType: string
   originalImage: string // base64 of original sketch
   onBack: () => void
-  onNext: (finalImageBase64: string) => void
+  onNext: (finalImageBase64: string, editCount: number) => void // Task 13: Add editCount parameter
 }
 
 export function RefinementPhase({
@@ -85,7 +85,7 @@ export function RefinementPhase({
   const handleFinalize = () => {
     // Use current edited image if exists, otherwise use original generated image
     const finalImage = currentImage || generatedImage
-    onNext(finalImage)
+    onNext(finalImage, editCount) // Task 13: Pass editCount to callback
   }
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

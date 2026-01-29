@@ -1,6 +1,7 @@
 export { Button, buttonVariants } from './button'
 export { CodeBlock, codeBlockVariants } from './CodeBlock'
 export { EditHistory } from './EditHistory'
+export { HoloCard } from './HoloCard'
 export { ImageComparison } from './ImageComparison'
 export { PromptEngine } from './PromptEngine'
 export { Sparky } from './Sparky'

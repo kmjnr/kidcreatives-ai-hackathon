@@ -7,6 +7,7 @@ export enum Phase {
 }
 
 import type { ImageGenerationResult, EditHistoryEntry } from './GeminiTypes'
+import type { TrophyStats } from './TrophyTypes'
 
 export interface HandshakeState {
   uploadedImage: string | null // base64 or URL
@@ -42,4 +43,11 @@ export interface RefinementState {
   isEditing: boolean // loading state
   error: string | null // error message
   editCount: number // number of refinements made
+}
+
+export interface TrophyState {
+  stats: TrophyStats | null
+  pdfGenerated: boolean
+  isGeneratingPDF: boolean
+  error: string | null
 }
