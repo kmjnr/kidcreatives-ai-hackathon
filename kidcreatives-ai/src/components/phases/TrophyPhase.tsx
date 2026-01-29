@@ -189,6 +189,22 @@ export function TrophyPhase({
     setSparkyMessage("Preparing your artwork for the gallery...")
 
     try {
+      // Parse and update prompt state to ensure synthesizedPrompt and completedAt are set
+      const promptState: PromptStateJSON = JSON.parse(promptStateJSON)
+      
+      // Ensure synthesizedPrompt is set (use intentStatement as fallback)
+      if (!promptState.synthesizedPrompt) {
+        promptState.synthesizedPrompt = intentStatement
+      }
+      
+      // Ensure completedAt timestamp is set for time calculation
+      if (!promptState.completedAt) {
+        promptState.completedAt = Date.now()
+      }
+      
+      // Use updated prompt state JSON
+      const updatedPromptStateJSON = JSON.stringify(promptState)
+
       // Generate thumbnail and PDF in parallel if needed
       const thumbnailPromise = generateThumbnail(refinedImage, 300)
       
@@ -197,7 +213,6 @@ export function TrophyPhase({
         pdfPromise = Promise.resolve(generatedPDFBase64)
       } else {
         setSparkyMessage("Creating your certificate...")
-        const promptState: PromptStateJSON = JSON.parse(promptStateJSON)
         const synthesizedPrompt = promptState.synthesizedPrompt || intentStatement
 
         pdfPromise = generateCertificatePDF({
@@ -225,11 +240,11 @@ export function TrophyPhase({
 
       setSparkyMessage("Uploading to your gallery...")
 
-      // Save to gallery
+      // Save to gallery with updated prompt state
       await addToGallery({
         refinedImage,
         originalImage,
-        promptStateJSON,
+        promptStateJSON: updatedPromptStateJSON,
         intentStatement,
         stats,
         certificatePDF: pdfBase64,

@@ -1,5 +1,6 @@
 import { supabase } from './client'
 import { uploadImage, uploadPDF, deleteFile } from './storage'
+import { extractStats } from '@/lib/statsExtractor'
 import type { GalleryItem } from '@/types/GalleryTypes'
 import type { TrophyStats } from '@/types/TrophyTypes'
 
@@ -94,8 +95,13 @@ export async function getCreations(userId: string): Promise<GalleryItem[]> {
     // Transform to GalleryItem format
     return data.map(item => {
       const promptState = item.prompt_state_json
-      const stats = item.creation_stats?.[0]
-      const variables = promptState.variables as Array<{ variable: string }> | undefined
+      const dbStats = item.creation_stats?.[0]
+      
+      // Use extractStats to calculate all stats correctly
+      const calculatedStats = extractStats(
+        promptState,
+        dbStats?.edit_count || 0
+      )
 
       return {
         id: item.id,
@@ -106,14 +112,7 @@ export async function getCreations(userId: string): Promise<GalleryItem[]> {
         promptStateJSON: JSON.stringify(promptState),
         intentStatement: item.intent_statement,
         certificatePDF: item.certificate_pdf_url,
-        stats: {
-          totalQuestions: promptState.totalQuestions || variables?.length || 0,
-          totalEdits: stats?.edit_count || 0,
-          timeSpent: stats?.time_spent_seconds || 0,
-          variablesUsed: variables?.map(v => v.variable) || [],
-          creativityScore: 85, // Default score
-          promptLength: promptState.synthesizedPrompt?.length || 0
-        }
+        stats: calculatedStats
       }
     })
   } catch (error) {
