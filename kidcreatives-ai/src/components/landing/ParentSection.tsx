@@ -30,7 +30,7 @@ const trustBadges = [
 
 export function ParentSection() {
   return (
-    <section className="py-20 px-4">
+    <section className="py-20 px-4 bg-gradient-to-br from-variable-purple via-subject-blue to-action-green">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <motion.h2
@@ -51,22 +51,24 @@ export function ParentSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
-              className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8"
+              className="bg-white rounded-2xl p-8 shadow-xl"
             >
               {/* Icon */}
-              <badge.icon className="w-12 h-12 text-action-green mb-4" />
+              <div className="w-16 h-16 rounded-2xl bg-action-green/10 flex items-center justify-center mb-4">
+                <badge.icon className="w-8 h-8 text-action-green" />
+              </div>
 
               {/* Title */}
-              <h3 className="text-2xl font-semibold text-white mb-4">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
                 {badge.title}
               </h3>
 
               {/* Points */}
               <ul className="space-y-3">
                 {badge.points.map((point, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-white/80">
+                  <li key={idx} className="flex items-start gap-2 text-gray-700">
                     <CheckCircle className="w-5 h-5 text-action-green flex-shrink-0 mt-0.5" />
-                    <span>{point}</span>
+                    <span className="leading-relaxed">{point}</span>
                   </li>
                 ))}
               </ul>

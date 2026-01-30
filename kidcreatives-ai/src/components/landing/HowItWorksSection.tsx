@@ -6,44 +6,49 @@ const steps = [
     icon: Upload,
     title: 'Upload Your Drawing',
     description: 'Start with YOUR art - a sketch, doodle, or complete drawing',
-    color: 'subject-blue'
+    color: 'bg-subject-blue',
+    textColor: 'text-subject-blue'
   },
   {
     icon: MessageCircle,
     title: 'Teach the AI',
     description: 'Answer fun questions to help AI understand your creative vision',
-    color: 'variable-purple'
+    color: 'bg-variable-purple',
+    textColor: 'text-variable-purple'
   },
   {
     icon: Sparkles,
     title: 'Watch AI Add Magic',
     description: 'See AI enhance your art while keeping YOUR original ideas',
-    color: 'context-orange'
+    color: 'bg-context-orange',
+    textColor: 'text-context-orange'
   },
   {
     icon: Paintbrush,
     title: 'Make It Perfect',
     description: "You're in control - add finishing touches exactly how you want",
-    color: 'action-green'
+    color: 'bg-action-green',
+    textColor: 'text-action-green'
   },
   {
     icon: Trophy,
     title: 'Show Off Your Skills',
     description: 'Get a certificate proving you can work with AI like a pro!',
-    color: 'subject-blue'
+    color: 'bg-subject-blue',
+    textColor: 'text-subject-blue'
   }
 ]
 
 export function HowItWorksSection() {
   return (
-    <section className="py-20 px-4">
+    <section className="py-20 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-bold text-white text-center mb-16 font-display"
+          className="text-3xl md:text-5xl font-bold text-gray-900 text-center mb-16 font-display"
         >
           How It Works - 5 Easy Steps!
         </motion.h2>
@@ -57,23 +62,23 @@ export function HowItWorksSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105"
+              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100"
             >
               {/* Step Number */}
-              <div className={`w-12 h-12 rounded-full bg-${step.color} flex items-center justify-center text-white font-bold text-xl mb-4`}>
+              <div className={`w-12 h-12 rounded-full ${step.color} flex items-center justify-center text-white font-bold text-xl mb-4`}>
                 {index + 1}
               </div>
 
               {/* Icon */}
-              <step.icon className={`w-12 h-12 text-${step.color} mb-4`} />
+              <step.icon className={`w-12 h-12 ${step.textColor} mb-4`} />
 
               {/* Title */}
-              <h3 className="text-xl font-semibold text-white mb-3">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 {step.title}
               </h3>
 
               {/* Description */}
-              <p className="text-white/80 text-sm">
+              <p className="text-gray-600 text-sm leading-relaxed">
                 {step.description}
               </p>
             </motion.div>

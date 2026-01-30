@@ -1,4 +1,3 @@
-import { GradientBackground } from '@/components/ui'
 import { HeroSection } from './HeroSection'
 import { HowItWorksSection } from './HowItWorksSection'
 import { FeaturesSection } from './FeaturesSection'
@@ -8,13 +7,13 @@ import { Footer } from './Footer'
 
 export function LandingPage() {
   return (
-    <GradientBackground variant="mesh-1">
+    <div className="min-h-screen">
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />
       <ExampleGallerySection />
       <ParentSection />
       <Footer />
-    </GradientBackground>
+    </div>
   )
 }

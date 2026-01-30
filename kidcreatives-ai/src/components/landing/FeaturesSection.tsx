@@ -27,7 +27,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-20 px-4">
+    <section className="py-20 px-4 bg-gradient-to-br from-subject-blue via-variable-purple to-context-orange">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <motion.h2
@@ -49,25 +49,25 @@ export function FeaturesSection() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
               whileHover={{ y: -8 }}
-              className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300"
+              className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300"
             >
               {/* Icon with Gradient Background */}
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6`}>
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg`}>
                 <feature.icon className="w-8 h-8 text-white" />
               </div>
 
               {/* Title */}
-              <h3 className="text-2xl font-semibold text-white mb-4">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-4">
                 {feature.title}
               </h3>
 
               {/* Description */}
-              <p className="text-white/90 mb-3">
+              <p className="text-gray-700 mb-3 leading-relaxed">
                 {feature.description}
               </p>
 
               {/* Subtitle */}
-              <p className="text-white/70 text-sm">
+              <p className="text-gray-600 text-sm leading-relaxed">
                 {feature.subtitle}
               </p>
             </motion.div>
