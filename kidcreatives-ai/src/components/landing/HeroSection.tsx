@@ -1,20 +1,13 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles, Brain, Award } from 'lucide-react'
-import { useState } from 'react'
 
 export function HeroSection() {
   const navigate = useNavigate()
-  const [navError, setNavError] = useState<string | null>(null)
 
   const handleStartCreating = () => {
-    try {
-      navigate('/app')
-      setNavError(null)
-    } catch (error) {
-      console.error('Navigation failed:', error)
-      setNavError('Unable to navigate. Please try again.')
-    }
+    console.log('Start Creating clicked - navigating to /app')
+    navigate('/app')
   }
 
   return (
@@ -59,11 +52,6 @@ export function HeroSection() {
           >
             Start Creating
           </motion.button>
-
-          {/* Error Message */}
-          {navError && (
-            <p className="mt-4 text-red-600 text-sm">{navError}</p>
-          )}
 
           {/* Trust Badges */}
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm md:text-base">
