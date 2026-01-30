@@ -1,14 +1,11 @@
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import { Sparkles, Brain, Award } from 'lucide-react'
 
-export function HeroSection() {
-  const navigate = useNavigate()
+interface HeroSectionProps {
+  onStartCreating: () => void
+}
 
-  const handleStartCreating = () => {
-    console.log('Start Creating clicked - navigating to /app')
-    navigate('/app')
-  }
+export function HeroSection({ onStartCreating }: HeroSectionProps) {
 
   return (
     <section className="min-h-screen flex items-center justify-center px-4 py-20 bg-gradient-to-br from-subject-blue via-variable-purple to-context-orange">
@@ -45,7 +42,7 @@ export function HeroSection() {
 
           {/* CTA Button */}
           <motion.button
-            onClick={handleStartCreating}
+            onClick={onStartCreating}
             className="bg-gradient-to-r from-action-green to-action-green-600 hover:from-action-green-600 hover:to-action-green-700 text-white font-semibold text-lg px-10 py-4 rounded-xl shadow-lg transition-all duration-300"
             whileHover={{ scale: 1.05, y: -2, boxShadow: "0 20px 40px rgba(39, 174, 96, 0.3)" }}
             whileTap={{ scale: 0.95 }}
