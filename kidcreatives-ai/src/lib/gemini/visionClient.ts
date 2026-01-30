@@ -25,7 +25,7 @@ export async function analyzeImage(
   mimeType: string = 'image/jpeg'
 ): Promise<VisionAnalysisResult> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const sanitizedIntent = sanitizeInput(intentStatement)
     const prompt = `You are Sparky, a friendly AI coach for children aged 7-10. 

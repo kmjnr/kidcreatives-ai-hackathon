@@ -45,7 +45,7 @@ export async function generateContextualQuestion(
   colorCategory: 'subject' | 'variable' | 'context'
 ): Promise<QuestionGenerationResult> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const sanitizedIntent = sanitizeInput(intentStatement)
     const sanitizedAnalysis = sanitizeInput(visionAnalysis)

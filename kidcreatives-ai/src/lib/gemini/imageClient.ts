@@ -61,10 +61,9 @@ export async function generateImage(
       }]
     }
 
-    const response = await fetch(GEMINI_IMAGE_ENDPOINT, {
+    const response = await fetch(`${GEMINI_IMAGE_ENDPOINT}?key=${API_KEY}`, {
       method: 'POST',
       headers: {
-        'x-goog-api-key': API_KEY,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody)
