@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { generateSocraticQuestion } from '@/lib/gemini/textClient'
+import { generateContextualQuestion } from '@/lib/gemini/textClient'
 import type { QuestionGenerationResult, PromptVariable } from '@/types/PromptState'
 
 interface UseGeminiTextReturn {
@@ -10,7 +10,6 @@ interface UseGeminiTextReturn {
     intentStatement: string,
     visionAnalysis: string,
     variable: PromptVariable,
-    questionTemplate: string,
     colorCategory: 'subject' | 'variable' | 'context'
   ) => Promise<void>
   reset: () => void
@@ -25,7 +24,6 @@ export function useGeminiText(): UseGeminiTextReturn {
     intentStatement: string,
     visionAnalysis: string,
     variable: PromptVariable,
-    questionTemplate: string,
     colorCategory: 'subject' | 'variable' | 'context'
   ) => {
     setIsGenerating(true)
@@ -33,11 +31,10 @@ export function useGeminiText(): UseGeminiTextReturn {
     setQuestion(null)
 
     try {
-      const result = await generateSocraticQuestion(
+      const result = await generateContextualQuestion(
         intentStatement,
         visionAnalysis,
         variable,
-        questionTemplate,
         colorCategory
       )
       setQuestion(result)

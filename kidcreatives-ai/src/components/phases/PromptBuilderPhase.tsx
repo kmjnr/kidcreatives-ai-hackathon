@@ -7,8 +7,8 @@ import { PromptEngine } from '@/components/ui/PromptEngine'
 import { useGeminiText } from '@/hooks/useGeminiText'
 import { usePromptState } from '@/hooks/usePromptState'
 import { useConfetti } from '@/hooks/useConfetti'
-import { selectQuestions, personalizeQuestion } from '@/lib/promptQuestions'
-import type { SocraticQuestion } from '@/types/PromptState'
+import { selectVariables, getColorCategory } from '@/lib/promptQuestions'
+import type { PromptVariable } from '@/types/PromptState'
 
 const MAX_ANSWER_LENGTH = 100
 
@@ -27,7 +27,7 @@ export function PromptBuilderPhase({
   onBack,
   onNext
 }: PromptBuilderPhaseProps) {
-  const [questions, setQuestions] = useState<SocraticQuestion[]>([])
+  const [variables, setVariables] = useState<PromptVariable[]>([])
   const [currentAnswer, setCurrentAnswer] = useState('')
   const { celebratePhaseCompletion } = useConfetti()
   const [sparkyMessage, setSparkyMessage] = useState('')
@@ -41,27 +41,24 @@ export function PromptBuilderPhase({
   )
 
   useEffect(() => {
-    const selectedQuestions = selectQuestions(intentStatement, visionAnalysis, 4)
-    setQuestions(selectedQuestions)
+    const selectedVariables = selectVariables(4)
+    setVariables(selectedVariables)
     setSparkyMessage("Let's build your AI prompt together! Answer a few fun questions about your creation.")
-  }, [intentStatement, visionAnalysis])
+  }, [])
 
   useEffect(() => {
-    if (questions.length > 0 && promptState.currentQuestionIndex === 0 && !question) {
-      const firstQuestion = questions[0]
-      const personalizedTemplate = personalizeQuestion(
-        firstQuestion.questionTemplate,
-        intentStatement
-      )
+    if (variables.length > 0 && promptState.currentQuestionIndex === 0 && !question) {
+      const firstVariable = variables[0]
+      const colorCategory = getColorCategory(firstVariable)
+      
       generateQuestion(
         intentStatement,
         visionAnalysis,
-        firstQuestion.variable,
-        personalizedTemplate,
-        firstQuestion.colorCategory
+        firstVariable,
+        colorCategory
       )
     }
-  }, [questions, promptState.currentQuestionIndex, question, intentStatement, visionAnalysis, generateQuestion])
+  }, [variables, promptState.currentQuestionIndex, question, intentStatement, visionAnalysis, generateQuestion])
 
   // Generate next question when currentQuestionIndex changes (after answer is added)
   useEffect(() => {
@@ -71,26 +68,22 @@ export function PromptBuilderPhase({
     if (currentIndex === 0) return
     
     // Skip if we've completed all questions
-    if (currentIndex >= questions.length) {
+    if (currentIndex >= variables.length) {
       setSparkyMessage("Awesome! You've built a complete AI prompt! Ready to see your creation come to life?")
       return
     }
     
     // Generate next question
-    const nextQuestion = questions[currentIndex]
-    const personalizedTemplate = personalizeQuestion(
-      nextQuestion.questionTemplate,
-      intentStatement
-    )
+    const nextVariable = variables[currentIndex]
+    const colorCategory = getColorCategory(nextVariable)
     
     generateQuestion(
       intentStatement,
       visionAnalysis,
-      nextQuestion.variable,
-      personalizedTemplate,
-      nextQuestion.colorCategory
+      nextVariable,
+      colorCategory
     )
-  }, [promptState.currentQuestionIndex, questions, intentStatement, visionAnalysis, generateQuestion, setSparkyMessage])
+  }, [promptState.currentQuestionIndex, variables, intentStatement, visionAnalysis, generateQuestion, setSparkyMessage])
 
   const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
