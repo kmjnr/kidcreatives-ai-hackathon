@@ -1,0 +1,7 @@
+export { LandingPage } from './LandingPage'
+export { HeroSection } from './HeroSection'
+export { HowItWorksSection } from './HowItWorksSection'
+export { FeaturesSection } from './FeaturesSection'
+export { ExampleGallerySection } from './ExampleGallerySection'
+export { ParentSection } from './ParentSection'
+export { Footer } from './Footer'

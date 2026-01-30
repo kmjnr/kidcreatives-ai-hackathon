@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { HandshakePhase } from '@/components/phases/HandshakePhase'
 import { PromptBuilderPhase } from '@/components/phases/PromptBuilderPhase'
@@ -9,6 +10,7 @@ import { GalleryView, GalleryErrorBoundary } from '@/components/gallery'
 import { AuthModal } from '@/components/auth'
 import { PhaseErrorBoundary } from '@/components/shared'
 import { NavigationBar, GradientBackground } from '@/components/ui'
+import { LandingPage } from '@/components/landing'
 import { useAuth } from '@/contexts/AuthContext'
 import { Phase } from '@/types/PhaseTypes'
 
@@ -217,43 +219,61 @@ function App() {
   }
 
   return (
-    <GradientBackground variant="mesh-1">
-      {/* Navigation Bar */}
-      {user && !showGallery && (
-        <NavigationBar
-          currentPhase={currentPhase}
-          onGalleryClick={() => setShowGallery(true)}
-          onLogout={signOut}
-          userName={user.email?.split('@')[0]}
-        />
-      )}
+    <Routes>
+      {/* Landing Page Route */}
+      <Route 
+        path="/" 
+        element={user ? <Navigate to="/app" replace /> : <LandingPage />} 
+      />
 
-      {/* Main Content - add pt-24 for nav bar spacing */}
-      <div className={user && !showGallery ? 'pt-24' : ''}>
-        {/* Phase Content */}
-        {user && !showGallery && (
-          <PhaseErrorBoundary onReset={() => setCurrentPhase(Phase.Handshake)}>
-            {renderPhase()}
-          </PhaseErrorBoundary>
-        )}
+      {/* Main App Route */}
+      <Route 
+        path="/app" 
+        element={
+          user ? (
+            <GradientBackground variant="mesh-1">
+              {/* Navigation Bar */}
+              {!showGallery && (
+                <NavigationBar
+                  currentPhase={currentPhase}
+                  onGalleryClick={() => setShowGallery(true)}
+                  onLogout={signOut}
+                  userName={user.email?.split('@')[0]}
+                />
+              )}
 
-        {/* Auth Modal */}
-        <AnimatePresence>
-          {showAuthModal && !user && (
-            <AuthModal onClose={() => setShowAuthModal(false)} />
-          )}
-        </AnimatePresence>
+              {/* Main Content - add pt-24 for nav bar spacing */}
+              <div className={!showGallery ? 'pt-24' : ''}>
+                {/* Phase Content */}
+                {!showGallery && (
+                  <PhaseErrorBoundary onReset={() => setCurrentPhase(Phase.Handshake)}>
+                    {renderPhase()}
+                  </PhaseErrorBoundary>
+                )}
 
-        {/* Gallery Overlay */}
-        <AnimatePresence>
-          {showGallery && user && (
-            <GalleryErrorBoundary onClose={() => setShowGallery(false)}>
-              <GalleryView onClose={() => setShowGallery(false)} />
-            </GalleryErrorBoundary>
-          )}
-        </AnimatePresence>
-      </div>
-    </GradientBackground>
+                {/* Auth Modal */}
+                <AnimatePresence>
+                  {showAuthModal && !user && (
+                    <AuthModal onClose={() => setShowAuthModal(false)} />
+                  )}
+                </AnimatePresence>
+
+                {/* Gallery Overlay */}
+                <AnimatePresence>
+                  {showGallery && (
+                    <GalleryErrorBoundary onClose={() => setShowGallery(false)}>
+                      <GalleryView onClose={() => setShowGallery(false)} />
+                    </GalleryErrorBoundary>
+                  )}
+                </AnimatePresence>
+              </div>
+            </GradientBackground>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } 
+      />
+    </Routes>
   )
 }
 

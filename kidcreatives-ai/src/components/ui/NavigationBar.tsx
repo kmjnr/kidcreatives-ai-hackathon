@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Images, LogOut, Sparkles } from 'lucide-react'
+import { Images, LogOut } from 'lucide-react'
 import { Button } from './button'
 import { ProgressIndicator } from './ProgressIndicator'
 import { Phase } from '@/types/PhaseTypes'
@@ -30,10 +30,11 @@ export function NavigationBar({
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-subject-blue" />
-            <h1 className="text-xl md:text-2xl font-display font-bold bg-gradient-to-r from-subject-blue to-variable-purple bg-clip-text text-transparent">
-              KidCreatives AI
-            </h1>
+            <img 
+              src="/logo/logo.png" 
+              alt="KidCreatives AI" 
+              className="h-10 w-auto md:h-12"
+            />
           </div>
 
           {/* Progress Indicator (center) */}
