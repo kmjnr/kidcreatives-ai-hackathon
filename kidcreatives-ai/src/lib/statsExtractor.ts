@@ -73,15 +73,18 @@ function calculateCreativityScore(variables: PromptStateJSON['variables']): numb
   // Rationale: Reward varied word usage (1 point per 2 unique words)
   // Typical range: 10-15 unique words = 20-30 points
   const uniqueWords = new Set(
-    variables.flatMap(v => v.answer.toLowerCase().split(/\s+/))
+    variables.flatMap(v => 
+      v.answer.toLowerCase().split(/\s+/).filter(word => word.length > 0)
+    )
   ).size
   rawScore += Math.min(30, uniqueWords * 2)
 
   // Descriptiveness score: 20 points max for multi-word answers
   // Rationale: Reward answers with multiple words (5 points per descriptive answer)
-  const descriptiveAnswers = variables.filter(v => 
-    v.answer.split(/\s+/).length > 2
-  ).length
+  const descriptiveAnswers = variables.filter(v => {
+    const words = v.answer.split(/\s+/).filter(word => word.length > 0)
+    return words.length > 2
+  }).length
   rawScore += Math.min(20, descriptiveAnswers * 5)
 
   // Scale from 0-100 to 80-100 range to protect children's confidence

@@ -42,9 +42,9 @@ export function GalleryView({ onClose }: GalleryViewProps) {
     }
   }
 
-  const downloadImage = (base64: string, filename: string) => {
-    // Convert base64 to blob to force download instead of opening
-    fetch(base64)
+  const downloadFile = (urlOrBase64: string, filename: string, errorPrefix: string) => {
+    // Convert URL/base64 to blob to force download instead of opening
+    fetch(urlOrBase64)
       .then(response => response.blob())
       .then(blob => {
         const blobUrl = URL.createObjectURL(blob)
@@ -60,10 +60,10 @@ export function GalleryView({ onClose }: GalleryViewProps) {
         }
       })
       .catch(error => {
-        console.error('Image download failed:', error)
+        console.error(`${errorPrefix} download failed:`, error)
         // Fallback: try direct download
         const link = document.createElement('a')
-        link.href = base64
+        link.href = urlOrBase64
         link.download = filename
         document.body.appendChild(link)
         link.click()
@@ -71,63 +71,14 @@ export function GalleryView({ onClose }: GalleryViewProps) {
       })
   }
 
-  const downloadPDF = (base64PDF: string, filename: string) => {
-    // Convert base64 to blob to force download instead of opening
-    fetch(base64PDF)
-      .then(response => response.blob())
-      .then(blob => {
-        const blobUrl = URL.createObjectURL(blob)
-        try {
-          const link = document.createElement('a')
-          link.href = blobUrl
-          link.download = filename
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-        } finally {
-          URL.revokeObjectURL(blobUrl)
-        }
-      })
-      .catch(error => {
-        console.error('PDF download failed:', error)
-        // Fallback: try direct download
-        const link = document.createElement('a')
-        link.href = base64PDF
-        link.download = filename
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      })
-  }
+  const downloadImage = (base64: string, filename: string) => 
+    downloadFile(base64, filename, 'Image')
 
-  const downloadPromptCard = (url: string, filename: string) => {
-    // Fetch the image and download as blob to force download instead of opening
-    fetch(url)
-      .then(response => response.blob())
-      .then(blob => {
-        const blobUrl = URL.createObjectURL(blob)
-        try {
-          const link = document.createElement('a')
-          link.href = blobUrl
-          link.download = filename
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-        } finally {
-          URL.revokeObjectURL(blobUrl) // Always revoke to prevent memory leak
-        }
-      })
-      .catch(error => {
-        console.error('Download failed:', error)
-        // Fallback: try direct download
-        const link = document.createElement('a')
-        link.href = url
-        link.download = filename
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-      })
-  }
+  const downloadPDF = (base64PDF: string, filename: string) => 
+    downloadFile(base64PDF, filename, 'PDF')
+
+  const downloadPromptCard = (url: string, filename: string) => 
+    downloadFile(url, filename, 'Prompt card')
 
   const formatFilename = (item: GalleryItem, extension: string): string => {
     const date = new Date(item.createdAt).toISOString().split('T')[0]
