@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { QuestionGenerationResult, PromptVariable } from '@/types/PromptState'
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
@@ -7,7 +6,7 @@ if (!API_KEY) {
   throw new Error('VITE_GEMINI_API_KEY is required but not set in environment variables')
 }
 
-const genAI = new GoogleGenerativeAI(API_KEY)
+const GEMINI_TEXT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 function sanitizeInput(input: string): string {
   return input
@@ -45,8 +44,6 @@ export async function generateContextualQuestion(
   colorCategory: 'subject' | 'variable' | 'context'
 ): Promise<QuestionGenerationResult> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-
     const sanitizedIntent = sanitizeInput(intentStatement)
     const sanitizedAnalysis = sanitizeInput(visionAnalysis)
     const variableKey = variable.toLowerCase()
@@ -85,9 +82,49 @@ Examples of BAD questions (too generic):
 
 Generate the question:`
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const question = response.text().trim()
+    const requestBody = {
+      contents: [{
+        parts: [{ text: prompt }]
+      }]
+    }
+
+    const response = await fetch(`${GEMINI_TEXT_ENDPOINT}?key=${API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Gemini Text API error (${response.status})`
+      try {
+        const errorData = await response.json()
+        errorMessage += `: ${errorData.error?.message || JSON.stringify(errorData)}`
+      } catch {
+        const errorText = await response.text()
+        errorMessage += `: ${errorText}`
+      }
+      throw new Error(errorMessage)
+    }
+
+    const data = await response.json()
+
+    if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
+      throw new Error('No candidates in API response')
+    }
+
+    const candidate = data.candidates[0]
+    if (!candidate.content || !candidate.content.parts) {
+      throw new Error('Invalid candidate structure in API response')
+    }
+
+    const textPart = candidate.content.parts.find((part: any) => part.text)
+    if (!textPart || !textPart.text) {
+      throw new Error('No text response in API result')
+    }
+
+    const question = textPart.text.trim()
 
     return {
       question,

@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { VisionAnalysisResult } from '@/types/GeminiTypes'
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
@@ -7,7 +6,7 @@ if (!API_KEY) {
   throw new Error('VITE_GEMINI_API_KEY is required but not set in environment variables')
 }
 
-const genAI = new GoogleGenerativeAI(API_KEY)
+const GEMINI_VISION_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
 function sanitizeInput(input: string): string {
   // Remove potential prompt injection patterns
@@ -25,8 +24,6 @@ export async function analyzeImage(
   mimeType: string = 'image/jpeg'
 ): Promise<VisionAnalysisResult> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-
     const sanitizedIntent = sanitizeInput(intentStatement)
     const prompt = `You are Sparky, a friendly AI coach for children aged 7-10. 
 A child has uploaded a drawing and says: "${sanitizedIntent}"
@@ -39,21 +36,58 @@ Analyze the image and respond in a warm, encouraging way that:
 
 Keep your response under 100 words and be specific about what you observe.`
 
-    const imageParts = [
-      {
-        inlineData: {
-          data: imageBase64,
-          mimeType: mimeType
-        }
-      }
-    ]
+    const requestBody = {
+      contents: [{
+        parts: [
+          { text: prompt },
+          {
+            inline_data: {
+              data: imageBase64,
+              mime_type: mimeType
+            }
+          }
+        ]
+      }]
+    }
 
-    const result = await model.generateContent([prompt, ...imageParts])
-    const response = await result.response
-    const text = response.text()
+    const response = await fetch(`${GEMINI_VISION_ENDPOINT}?key=${API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Gemini Vision API error (${response.status})`
+      try {
+        const errorData = await response.json()
+        errorMessage += `: ${errorData.error?.message || JSON.stringify(errorData)}`
+      } catch {
+        const errorText = await response.text()
+        errorMessage += `: ${errorText}`
+      }
+      throw new Error(errorMessage)
+    }
+
+    const data = await response.json()
+
+    if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
+      throw new Error('No candidates in API response')
+    }
+
+    const candidate = data.candidates[0]
+    if (!candidate.content || !candidate.content.parts) {
+      throw new Error('Invalid candidate structure in API response')
+    }
+
+    const textPart = candidate.content.parts.find((part: any) => part.text)
+    if (!textPart || !textPart.text) {
+      throw new Error('No text response in API result')
+    }
 
     return {
-      description: text,
+      description: textPart.text,
       confidence: 'high',
       suggestions: []
     }
