@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { HandshakePhase } from '@/components/phases/HandshakePhase'
 import { PromptBuilderPhase } from '@/components/phases/PromptBuilderPhase'
@@ -39,25 +39,25 @@ const INITIAL_PHASE_DATA: PhaseData = {
 
 function App() {
   const { user, signOut, loading: authLoading } = useAuth()
+  const location = useLocation()
   const [currentPhase, setCurrentPhase] = useState<Phase>(Phase.Handshake)
   const [phaseData, setPhaseData] = useState<PhaseData>(INITIAL_PHASE_DATA)
   const [showGallery, setShowGallery] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  // Show auth modal only when accessing /app without authentication
-  // This is now handled by the routing logic, so we can remove this effect
-  // or make it conditional to only show on /app route
+  // Show auth modal when accessing /app without authentication
   useEffect(() => {
-    // Only show auth modal if we're on /app route and not authenticated
-    const isAppRoute = window.location.pathname === '/app'
+    const isAppRoute = location.pathname === '/app'
     const timer = setTimeout(() => {
       if (!authLoading && !user && isAppRoute) {
         setShowAuthModal(true)
+      } else if (user || !isAppRoute) {
+        setShowAuthModal(false)
       }
     }, 100)
     
     return () => clearTimeout(timer)
-  }, [user, authLoading])
+  }, [user, authLoading, location.pathname])
 
   // Redirect to Handshake if Phase 2 is missing required data
   useEffect(() => {
