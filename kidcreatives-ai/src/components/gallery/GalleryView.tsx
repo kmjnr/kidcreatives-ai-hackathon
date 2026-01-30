@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, X } from 'lucide-react'
+import { Download, X, Award } from 'lucide-react'
 import { useGallery } from '@/hooks/useGallery'
 import { GalleryHeader } from './GalleryHeader'
 import { GalleryCard } from './GalleryCard'
@@ -58,6 +58,35 @@ export function GalleryView({ onClose }: GalleryViewProps) {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  const downloadPromptCard = (url: string, filename: string) => {
+    // Fetch the image and download as blob to force download instead of opening
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = URL.createObjectURL(blob)
+        try {
+          const link = document.createElement('a')
+          link.href = blobUrl
+          link.download = filename
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        } finally {
+          URL.revokeObjectURL(blobUrl) // Always revoke to prevent memory leak
+        }
+      })
+      .catch(error => {
+        console.error('Download failed:', error)
+        // Fallback: try direct download
+        const link = document.createElement('a')
+        link.href = url
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      })
   }
 
   const formatFilename = (item: GalleryItem, extension: string): string => {
@@ -200,7 +229,7 @@ export function GalleryView({ onClose }: GalleryViewProps) {
                 </div>
 
                 {/* Download Buttons */}
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() =>
                       downloadImage(
@@ -208,10 +237,10 @@ export function GalleryView({ onClose }: GalleryViewProps) {
                         formatFilename(selectedItem, 'png')
                       )
                     }
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-action-green text-white rounded-lg hover:bg-action-green/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-subject-blue text-white rounded-lg hover:bg-subject-blue/90 transition-colors"
                   >
                     <Download size={20} />
-                    <span>Download Image</span>
+                    <span>Image</span>
                   </button>
                   <button
                     onClick={() =>
@@ -220,11 +249,27 @@ export function GalleryView({ onClose }: GalleryViewProps) {
                         formatFilename(selectedItem, 'pdf')
                       )
                     }
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-subject-blue text-white rounded-lg hover:bg-subject-blue/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-variable-purple text-white rounded-lg hover:bg-variable-purple/90 transition-colors"
                   >
                     <Download size={20} />
-                    <span>Download Certificate</span>
+                    <span>Certificate</span>
                   </button>
+                  {selectedItem.promptCardURL && (
+                    <button
+                      onClick={() => {
+                        if (selectedItem.promptCardURL) {
+                          downloadPromptCard(
+                            selectedItem.promptCardURL,
+                            formatFilename(selectedItem, 'card.png')
+                          )
+                        }
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-context-orange text-white rounded-lg hover:bg-context-orange/90 transition-colors"
+                    >
+                      <Award size={20} />
+                      <span>Card</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>

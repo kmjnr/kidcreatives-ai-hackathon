@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Download, RotateCcw, ArrowLeft, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -7,6 +7,7 @@ import { HoloCard } from '@/components/ui/HoloCard'
 import { extractStats } from '@/lib/statsExtractor'
 import { generateCertificatePDF, downloadPDF } from '@/lib/pdfGenerator'
 import { generateThumbnail } from '@/lib/thumbnailGenerator'
+import { captureElementAsPNG } from '@/lib/cardCapture'
 import { useGallery } from '@/hooks/useGallery'
 import type { PromptStateJSON } from '@/types/PromptState'
 import type { HoloCardData } from '@/types/TrophyTypes'
@@ -43,7 +44,9 @@ export function TrophyPhase({
   const [savedToGallery, setSavedToGallery] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [generatedPDFBase64, setGeneratedPDFBase64] = useState<string | null>(null)
+  const [isCapturingCard, setIsCapturingCard] = useState(false)
 
+  const holoCardRef = useRef<HTMLDivElement>(null)
   const { addToGallery } = useGallery()
 
   // Parse prompt state and extract stats
@@ -189,6 +192,28 @@ export function TrophyPhase({
     setSparkyMessage("Preparing your artwork for the gallery...")
 
     try {
+      // Capture HoloCard as PNG
+      let promptCardBlob: Blob | undefined
+      if (holoCardRef.current) {
+        setIsCapturingCard(true)
+        setSparkyMessage("Capturing your trophy card...")
+        try {
+          // Wait for animations and rendering to complete
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          promptCardBlob = await captureElementAsPNG(holoCardRef.current, {
+            backgroundColor: '#1a1a2e',
+            scale: 2
+          })
+          console.log('Prompt card captured successfully')
+        } catch (captureError) {
+          console.error('Failed to capture prompt card:', captureError)
+          // Continue without prompt card if capture fails
+        } finally {
+          setIsCapturingCard(false)
+        }
+      }
+
       // Parse and update prompt state to ensure synthesizedPrompt and completedAt are set
       const promptState: PromptStateJSON = JSON.parse(promptStateJSON)
       
@@ -240,7 +265,7 @@ export function TrophyPhase({
 
       setSparkyMessage("Uploading to your gallery...")
 
-      // Save to gallery with updated prompt state
+      // Save to gallery with updated prompt state and prompt card
       await addToGallery({
         refinedImage,
         originalImage,
@@ -248,7 +273,8 @@ export function TrophyPhase({
         intentStatement,
         stats,
         certificatePDF: pdfBase64,
-        thumbnail
+        thumbnail,
+        promptCardPNG: promptCardBlob // NEW
       })
 
       setSavedToGallery(true)
@@ -328,7 +354,9 @@ export function TrophyPhase({
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-8"
         >
-          <HoloCard data={holoCardData} />
+          <div ref={holoCardRef} className="inline-block">
+            <HoloCard data={holoCardData} tiltEnable={!isCapturingCard} />
+          </div>
         </motion.div>
 
         {/* Name Input or PDF Download */}
@@ -411,10 +439,15 @@ export function TrophyPhase({
                 {/* Save to Gallery Button */}
                 <Button
                   onClick={handleSaveToGallery}
-                  disabled={isSavingToGallery || savedToGallery}
+                  disabled={isSavingToGallery || savedToGallery || isCapturingCard}
                   className="gap-2 bg-action-green hover:bg-green-600 text-white text-lg px-8 py-4 disabled:bg-gray-400"
                 >
-                  {isSavingToGallery ? (
+                  {isCapturingCard ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                      Capturing Card...
+                    </>
+                  ) : isSavingToGallery ? (
                     <>
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
                       Saving...

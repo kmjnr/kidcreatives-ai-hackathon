@@ -1,5 +1,5 @@
 import { supabase } from './client'
-import { uploadImage, uploadPDF, deleteFile } from './storage'
+import { uploadImage, uploadPDF, uploadPromptCard, deleteFile } from './storage'
 import { extractStats } from '@/lib/statsExtractor'
 import type { GalleryItem } from '@/types/GalleryTypes'
 import type { TrophyStats } from '@/types/TrophyTypes'
@@ -9,6 +9,7 @@ interface CreateCreationInput {
   originalImage: string // base64
   thumbnail: string // base64
   certificatePDF: string // base64
+  promptCardPNG?: Blob // NEW: Optional prompt card PNG blob
   intentStatement: string
   promptStateJSON: string
   stats: TrophyStats
@@ -25,6 +26,18 @@ export async function saveCreation(
     // Generate unique creation ID
     const creationId = crypto.randomUUID()
 
+    // Upload prompt card if provided
+    let promptCardUrl: string | null = null
+    if (creation.promptCardPNG) {
+      try {
+        promptCardUrl = await uploadPromptCard(userId, creationId, creation.promptCardPNG)
+        console.log('Prompt card uploaded:', promptCardUrl)
+      } catch (error) {
+        console.error('Failed to upload prompt card:', error)
+        // Don't fail the entire save if prompt card upload fails
+      }
+    }
+
     // Upload files to storage
     const [refinedImageUrl, originalImageUrl, thumbnailUrl, certificateUrl] = await Promise.all([
       uploadImage(creation.refinedImage, 'creation-images', `${userId}/${creationId}/refined.jpg`),
@@ -37,19 +50,27 @@ export async function saveCreation(
     const promptState = JSON.parse(creation.promptStateJSON)
     const variablesUsed = promptState.variables?.length || 0
 
+    // Prepare creation data
+    const creationData: Record<string, unknown> = {
+      id: creationId,
+      user_id: userId,
+      refined_image_url: refinedImageUrl,
+      original_image_url: originalImageUrl,
+      thumbnail_url: thumbnailUrl,
+      certificate_pdf_url: certificateUrl,
+      intent_statement: creation.intentStatement,
+      prompt_state_json: promptState
+    }
+
+    // Only add prompt_card_url if it exists (for backward compatibility)
+    if (promptCardUrl) {
+      creationData.prompt_card_url = promptCardUrl
+    }
+
     // Insert creation record
     const { error: creationError } = await supabase
       .from('creations')
-      .insert({
-        id: creationId,
-        user_id: userId,
-        refined_image_url: refinedImageUrl,
-        original_image_url: originalImageUrl,
-        thumbnail_url: thumbnailUrl,
-        certificate_pdf_url: certificateUrl,
-        intent_statement: creation.intentStatement,
-        prompt_state_json: promptState
-      })
+      .insert(creationData)
 
     if (creationError) throw creationError
 
@@ -68,6 +89,12 @@ export async function saveCreation(
     return creationId
   } catch (error) {
     console.error('Save creation error:', error)
+    // Log full error details for debugging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name)
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
     throw new Error(`Failed to save creation: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -112,11 +139,17 @@ export async function getCreations(userId: string): Promise<GalleryItem[]> {
         promptStateJSON: JSON.stringify(promptState),
         intentStatement: item.intent_statement,
         certificatePDF: item.certificate_pdf_url,
+        promptCardURL: item.prompt_card_url, // NEW
         stats: calculatedStats
       }
     })
   } catch (error) {
     console.error('Get creations error:', error)
+    // Log full error details for debugging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name)
+      console.error('Error message:', error.message)
+    }
     throw new Error(`Failed to load creations: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -129,12 +162,16 @@ export async function deleteCreation(
   creationId: string
 ): Promise<void> {
   try {
-    // Delete files from storage
+    // Delete files from storage (including prompt card with backward compatibility)
     await Promise.all([
       deleteFile('creation-images', `${userId}/${creationId}/refined.jpg`),
       deleteFile('creation-images', `${userId}/${creationId}/original.jpg`),
       deleteFile('creation-thumbnails', `${userId}/${creationId}/thumb.jpg`),
-      deleteFile('creation-certificates', `${userId}/${creationId}/certificate.pdf`)
+      deleteFile('creation-certificates', `${userId}/${creationId}/certificate.pdf`),
+      // Delete prompt card if it exists (ignore error for backward compatibility)
+      deleteFile('creation-images', `${userId}/prompt-cards/${creationId}.png`).catch(() => {
+        // Silently ignore if prompt card doesn't exist (old creations)
+      })
     ])
 
     // Delete database records (cascade will handle creation_stats)
@@ -147,6 +184,11 @@ export async function deleteCreation(
     if (error) throw error
   } catch (error) {
     console.error('Delete creation error:', error)
+    // Log full error details for debugging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name)
+      console.error('Error message:', error.message)
+    }
     throw new Error(`Failed to delete creation: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

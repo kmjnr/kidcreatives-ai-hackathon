@@ -185,6 +185,40 @@ export async function deleteFile(
 }
 
 /**
+ * Uploads prompt card PNG to Supabase Storage
+ * @param userId - User ID for path organization
+ * @param creationId - Creation ID for unique filename
+ * @param pngBlob - PNG blob to upload
+ * @returns Public URL of uploaded PNG
+ */
+export async function uploadPromptCard(
+  userId: string,
+  creationId: string,
+  pngBlob: Blob
+): Promise<string> {
+  const fileName = `${userId}/prompt-cards/${creationId}.png`
+  
+  const { error } = await supabase.storage
+    .from('creation-images')
+    .upload(fileName, pngBlob, {
+      contentType: 'image/png',
+      upsert: true,
+      cacheControl: '3600'
+    })
+
+  if (error) {
+    console.error('Error uploading prompt card:', error)
+    throw new Error(`Failed to upload prompt card: ${error.message}`)
+  }
+
+  const { data: urlData } = supabase.storage
+    .from('creation-images')
+    .getPublicUrl(fileName)
+
+  return urlData.publicUrl
+}
+
+/**
  * Get signed URL for private file access
  */
 export async function getSignedUrl(

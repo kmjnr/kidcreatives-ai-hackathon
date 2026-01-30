@@ -8,9 +8,10 @@ import { formatTimeSpent } from '@/lib/statsExtractor'
 interface HoloCardProps {
   data: HoloCardData
   className?: string
+  tiltEnable?: boolean // NEW: Optional, defaults to true
 }
 
-export function HoloCard({ data, className = '' }: HoloCardProps) {
+export function HoloCard({ data, className = '', tiltEnable = true }: HoloCardProps) {
   const { finalImage, stats, intentStatement, creationDate } = data
 
   const imageDataURL = useMemo(
@@ -20,6 +21,7 @@ export function HoloCard({ data, className = '' }: HoloCardProps) {
 
   return (
     <Tilt
+      tiltEnable={tiltEnable} // Use prop to control tilt
       tiltMaxAngleX={15}
       tiltMaxAngleY={15}
       perspective={1000}

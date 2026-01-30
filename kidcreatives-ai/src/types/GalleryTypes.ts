@@ -13,6 +13,7 @@ export interface GalleryItem {
   stats: TrophyStats
   certificatePDF: string // base64 PDF data
   thumbnail: string // base64 thumbnail (scaled down version)
+  promptCardURL?: string // NEW: Optional URL to prompt card PNG
 }
 
 /**

@@ -35,6 +35,7 @@ export function useGallery() {
     originalImage: string
     thumbnail: string
     certificatePDF: string
+    promptCardPNG?: Blob // NEW: Optional prompt card PNG blob
     intentStatement: string
     promptStateJSON: string
     stats: TrophyStats
