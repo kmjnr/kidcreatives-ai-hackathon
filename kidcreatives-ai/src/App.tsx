@@ -44,10 +44,14 @@ function App() {
   const [showGallery, setShowGallery] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  // Show auth modal if not logged in (with debounce to prevent flickering)
+  // Show auth modal only when accessing /app without authentication
+  // This is now handled by the routing logic, so we can remove this effect
+  // or make it conditional to only show on /app route
   useEffect(() => {
+    // Only show auth modal if we're on /app route and not authenticated
+    const isAppRoute = window.location.pathname === '/app'
     const timer = setTimeout(() => {
-      if (!authLoading && !user) {
+      if (!authLoading && !user && isAppRoute) {
         setShowAuthModal(true)
       }
     }, 100)
@@ -223,7 +227,19 @@ function App() {
       {/* Landing Page Route */}
       <Route 
         path="/" 
-        element={user ? <Navigate to="/app" replace /> : <LandingPage />} 
+        element={
+          authLoading ? (
+            <GradientBackground variant="mesh-1">
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="text-white text-xl">Loading...</div>
+              </div>
+            </GradientBackground>
+          ) : user ? (
+            <Navigate to="/app" replace />
+          ) : (
+            <LandingPage />
+          )
+        } 
       />
 
       {/* Main App Route */}
