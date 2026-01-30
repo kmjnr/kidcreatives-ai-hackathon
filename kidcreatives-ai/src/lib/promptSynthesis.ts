@@ -93,3 +93,62 @@ export function extractSubject(intentStatement: string): string {
   
   return meaningfulWords.slice(0, 3).join(' ') || 'creation'
 }
+
+/**
+ * Synthesizes enhancement prompt for image-to-image generation
+ * Separates original intent from style instructions for better preservation
+ * 
+ * @param promptState - The complete prompt state from Phase 2
+ * @returns Object with originalIntent and styleInstructions separated
+ */
+export function synthesizeEnhancementPrompt(
+  promptState: PromptStateJSON
+): { originalIntent: string; styleInstructions: string } {
+  const { intentStatement, variables } = promptState
+
+  // Original intent (what the child drew)
+  const originalIntent = intentStatement || 'A creative artwork'
+
+  // Style instructions (how to enhance it)
+  const instructions: string[] = []
+
+  // Validate variables
+  if (!Array.isArray(variables) || variables.length === 0) {
+    return { originalIntent, styleInstructions: '' }
+  }
+
+  // Add texture/material
+  const textureVars = variables.filter(v => v.colorCategory === 'variable')
+  if (textureVars.length > 0) {
+    instructions.push(`Texture: ${textureVars.map(v => v.answer).join(', ')}`)
+  }
+
+  // Add lighting
+  const lightingVar = variables.find(v => v.variable === 'lighting')
+  if (lightingVar) {
+    instructions.push(`Lighting: ${lightingVar.answer}`)
+  }
+
+  // Add mood
+  const moodVar = variables.find(v => v.variable === 'mood')
+  if (moodVar) {
+    instructions.push(`Mood: ${moodVar.answer}`)
+  }
+
+  // Add background
+  const backgroundVar = variables.find(v => v.variable === 'background')
+  if (backgroundVar) {
+    instructions.push(`Background: ${backgroundVar.answer}`)
+  }
+
+  // Add style
+  const styleVar = variables.find(v => v.variable === 'style')
+  if (styleVar) {
+    instructions.push(`Art Style: ${styleVar.answer}`)
+  }
+
+  return {
+    originalIntent,
+    styleInstructions: instructions.join('\n')
+  }
+}

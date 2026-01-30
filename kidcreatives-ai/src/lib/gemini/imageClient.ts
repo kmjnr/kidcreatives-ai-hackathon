@@ -24,19 +24,40 @@ function sanitizePrompt(prompt: string): string {
  * Generate image using Gemini 2.5 Flash Image model
  * 
  * @param prompt - Narrative description of image to generate
+ * @param referenceImage - Optional base64 image to enhance (preserves composition)
+ * @param referenceMimeType - MIME type of reference image
  * @returns ImageGenerationResult with base64 encoded PNG
  */
 export async function generateImage(
-  prompt: string
+  prompt: string,
+  referenceImage?: string,
+  referenceMimeType?: string
 ): Promise<ImageGenerationResult> {
   try {
     const sanitizedPrompt = sanitizePrompt(prompt)
 
+    // Build request parts based on whether we have a reference image
+    const parts: Array<{ text?: string; inline_data?: { data: string; mime_type: string } }> = []
+    
+    if (referenceImage && referenceMimeType) {
+      // Image-to-image: Include reference image first, then enhancement instructions
+      parts.push({
+        inline_data: {
+          data: referenceImage,
+          mime_type: referenceMimeType
+        }
+      })
+      parts.push({
+        text: `Enhance this child's drawing while preserving its core composition, elements, and artistic choices.\n\n${sanitizedPrompt}\n\nIMPORTANT: Keep the same subject, pose, proportions, and layout. Only change the art style, lighting, and visual effects as specified. The child should recognize their original creation.`
+      })
+    } else {
+      // Text-to-image: Original behavior for backward compatibility
+      parts.push({ text: sanitizedPrompt })
+    }
+
     const requestBody = {
       contents: [{
-        parts: [
-          { text: sanitizedPrompt }
-        ]
+        parts
       }]
     }
 

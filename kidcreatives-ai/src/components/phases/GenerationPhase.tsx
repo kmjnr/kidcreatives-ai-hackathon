@@ -4,7 +4,7 @@ import { ArrowRight, ArrowLeft, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sparky } from '@/components/ui/Sparky'
 import { useGeminiImage } from '@/hooks/useGeminiImage'
-import { synthesizePrompt } from '@/lib/promptSynthesis'
+import { synthesizeEnhancementPrompt } from '@/lib/promptSynthesis'
 import { imageToDataURL } from '@/lib/gemini/imageClient'
 import type { PromptStateJSON } from '@/types/PromptState'
 
@@ -31,33 +31,46 @@ export function GenerationPhase({
   useEffect(() => {
     try {
       const promptState: PromptStateJSON = JSON.parse(promptStateJSON)
-      const prompt = synthesizePrompt(promptState)
-      setSynthesizedPrompt(prompt)
-      setSparkyMessage("I'm creating your AI-enhanced artwork! This might take a few seconds...")
+      const { originalIntent, styleInstructions } = synthesizeEnhancementPrompt(promptState)
       
-      // Automatically start generation
-      generate(prompt)
+      // Store for display
+      setSynthesizedPrompt(styleInstructions 
+        ? `${originalIntent}\n\n${styleInstructions}`
+        : originalIntent
+      )
+      
+      setSparkyMessage("I'm enhancing YOUR drawing with AI magic! This might take a few seconds...")
+      
+      // Pass original image as reference for image-to-image generation
+      generate(originalIntent, styleInstructions, originalImage, imageMimeType)
     } catch (err) {
       console.error('Failed to parse prompt state:', err)
       setSparkyMessage("Oops! Something went wrong with your prompt. Let's try again!")
     }
-  }, [promptStateJSON, generate])
+  }, [promptStateJSON, originalImage, imageMimeType, generate])
 
   // Update Sparky message based on generation state
   useEffect(() => {
     if (isGenerating) {
-      setSparkyMessage("I'm creating your AI-enhanced artwork! This might take a few seconds...")
+      setSparkyMessage("I'm enhancing YOUR drawing with AI magic! Watch closely...")
     } else if (error) {
       setSparkyMessage("Hmm, something went wrong. But don't worry, we can try again!")
     } else if (generatedImage) {
-      setSparkyMessage("Ta-da! Look at your amazing creation! You can finalize it now, or refine it further if you'd like!")
+      setSparkyMessage("Ta-da! It's YOUR drawing, but even more amazing! Do you recognize your creation? 🎨")
     }
   }, [isGenerating, error, generatedImage])
 
   const handleRetry = () => {
     reset()
-    setSparkyMessage("Let's try creating your artwork again!")
-    generate(synthesizedPrompt)
+    setSparkyMessage("Let's try enhancing your drawing again!")
+    
+    try {
+      const promptState: PromptStateJSON = JSON.parse(promptStateJSON)
+      const { originalIntent, styleInstructions } = synthesizeEnhancementPrompt(promptState)
+      generate(originalIntent, styleInstructions, originalImage, imageMimeType)
+    } catch (err) {
+      console.error('Failed to retry:', err)
+    }
   }
 
   const handleFinalize = () => {

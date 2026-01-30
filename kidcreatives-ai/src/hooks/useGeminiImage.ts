@@ -6,7 +6,12 @@ interface UseGeminiImageReturn {
   generatedImage: ImageGenerationResult | null
   isGenerating: boolean
   error: string | null
-  generate: (prompt: string) => Promise<void>
+  generate: (
+    originalIntent: string,
+    styleInstructions: string,
+    referenceImage?: string,
+    referenceMimeType?: string
+  ) => Promise<void>
   reset: () => void
 }
 
@@ -15,13 +20,23 @@ export function useGeminiImage(): UseGeminiImageReturn {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const generate = useCallback(async (prompt: string) => {
+  const generate = useCallback(async (
+    originalIntent: string,
+    styleInstructions: string,
+    referenceImage?: string,
+    referenceMimeType?: string
+  ) => {
     setIsGenerating(true)
     setError(null)
     setGeneratedImage(null)
 
     try {
-      const result = await generateImage(prompt)
+      // Combine intent and style for full prompt
+      const fullPrompt = styleInstructions 
+        ? `${originalIntent}\n\n${styleInstructions}`
+        : originalIntent
+      
+      const result = await generateImage(fullPrompt, referenceImage, referenceMimeType)
       setGeneratedImage(result)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Image generation failed'
