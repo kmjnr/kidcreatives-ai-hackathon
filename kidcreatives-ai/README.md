@@ -4,8 +4,8 @@
 
 An educational web application that transforms AI from a "black box" into a "glass box" for children aged 7-10, teaching prompt engineering through interactive art creation.
 
-🚀 **Live Demo**: [https://kidcreatives-ai.netlify.app](https://kidcreatives-ai.netlify.app) *(Replace with your actual Netlify URL)*  
-📹 **Demo Video**: *Coming soon*  
+🚀 **Live Demo**: [https://kidcreativesai.netlify.app/]  
+📹 **Demo Video**: Link: 
 🏆 **Hackathon**: Dynamous Kiro Hackathon (January 2026)
 
 ---
