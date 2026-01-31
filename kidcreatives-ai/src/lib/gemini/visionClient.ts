@@ -1,4 +1,4 @@
-import type { VisionAnalysisResult } from '@/types/GeminiTypes'
+import type { VisionAnalysisResult, GeminiResponse, GeminiContentPart } from '@/types/GeminiTypes'
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
 
@@ -70,7 +70,7 @@ Keep your response under 100 words and be specific about what you observe.`
       throw new Error(errorMessage)
     }
 
-    const data = await response.json()
+    const data: GeminiResponse = await response.json()
 
     if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
       throw new Error('No candidates in API response')
@@ -81,7 +81,9 @@ Keep your response under 100 words and be specific about what you observe.`
       throw new Error('Invalid candidate structure in API response')
     }
 
-    const textPart = candidate.content.parts.find((part: any) => part.text)
+    const textPart = candidate.content.parts.find(
+      (part: GeminiContentPart) => part.text
+    )
     if (!textPart || !textPart.text) {
       throw new Error('No text response in API result')
     }

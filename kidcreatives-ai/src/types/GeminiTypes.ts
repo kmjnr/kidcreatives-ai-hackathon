@@ -39,6 +39,40 @@ export interface VisionAnalysisResult {
   suggestions?: string[]
 }
 
+// Gemini API Response Types (for REST API)
+export interface GeminiContentPart {
+  text?: string
+  inlineData?: {
+    data: string
+    mimeType: string
+  }
+}
+
+export interface GeminiContentResponse {
+  parts: GeminiContentPart[]
+  role?: string
+}
+
+export interface GeminiCandidateResponse {
+  content: GeminiContentResponse
+  finishReason?: string
+  index?: number
+  safetyRatings?: Array<{
+    category: string
+    probability: string
+  }>
+}
+
+export interface GeminiResponse {
+  candidates: GeminiCandidateResponse[]
+  promptFeedback?: {
+    safetyRatings?: Array<{
+      category: string
+      probability: string
+    }>
+  }
+}
+
 // Reserved for future configuration options when gemini-2.5-flash-image supports them
 // Currently unused - gemini-2.5-flash-image doesn't accept configuration parameters
 export interface ImageGenerationConfig {

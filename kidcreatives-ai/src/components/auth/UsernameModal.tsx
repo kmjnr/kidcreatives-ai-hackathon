@@ -28,7 +28,7 @@ export function UsernameModal({ onClose }: UsernameModalProps) {
     try {
       await signInAnonymously(username.trim())
       onClose()
-    } catch (err) {
+    } catch {
       setError('Failed to start session. Please try again.')
     }
   }

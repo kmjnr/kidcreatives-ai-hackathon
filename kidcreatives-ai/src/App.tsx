@@ -1,18 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { HandshakePhase } from '@/components/phases/HandshakePhase'
-import { PromptBuilderPhase } from '@/components/phases/PromptBuilderPhase'
-import { GenerationPhase } from '@/components/phases/GenerationPhase'
-import { RefinementPhase } from '@/components/phases/RefinementPhase'
-import { TrophyPhase } from '@/components/phases/TrophyPhase'
-import { GalleryView, GalleryErrorBoundary } from '@/components/gallery'
 import { AuthModal } from '@/components/auth'
-import { PhaseErrorBoundary } from '@/components/shared'
+import { PhaseErrorBoundary, LoadingFallback } from '@/components/shared'
 import { NavigationBar, GradientBackground } from '@/components/ui'
-import { LandingPage } from '@/components/landing'
 import { useAuth } from '@/contexts/AuthContext'
 import { Phase } from '@/types/PhaseTypes'
+
+// Lazy load phase components
+const HandshakePhase = lazy(() => import('@/components/phases/HandshakePhase').then(m => ({ default: m.HandshakePhase })))
+const PromptBuilderPhase = lazy(() => import('@/components/phases/PromptBuilderPhase').then(m => ({ default: m.PromptBuilderPhase })))
+const GenerationPhase = lazy(() => import('@/components/phases/GenerationPhase').then(m => ({ default: m.GenerationPhase })))
+const RefinementPhase = lazy(() => import('@/components/phases/RefinementPhase').then(m => ({ default: m.RefinementPhase })))
+const TrophyPhase = lazy(() => import('@/components/phases/TrophyPhase').then(m => ({ default: m.TrophyPhase })))
+
+// Lazy load gallery
+const GalleryView = lazy(() => import('@/components/gallery').then(m => ({ default: m.GalleryView })))
+const GalleryErrorBoundary = lazy(() => import('@/components/gallery').then(m => ({ default: m.GalleryErrorBoundary })))
+
+// Lazy load landing page
+const LandingPage = lazy(() => import('@/components/landing').then(m => ({ default: m.LandingPage })))
 
 interface PhaseData {
   originalImage: string | null
@@ -241,7 +248,9 @@ function App() {
           ) : user ? (
             <Navigate to="/app" replace />
           ) : (
-            <LandingPage />
+            <Suspense fallback={<LoadingFallback />}>
+              <LandingPage />
+            </Suspense>
           )
         } 
       />
@@ -273,7 +282,9 @@ function App() {
                 {/* Phase Content */}
                 {!showGallery && (
                   <PhaseErrorBoundary onReset={() => setCurrentPhase(Phase.Handshake)}>
-                    {renderPhase()}
+                    <Suspense fallback={<LoadingFallback />}>
+                      {renderPhase()}
+                    </Suspense>
                   </PhaseErrorBoundary>
                 )}
 
@@ -287,9 +298,11 @@ function App() {
                 {/* Gallery Overlay */}
                 <AnimatePresence>
                   {showGallery && (
-                    <GalleryErrorBoundary onClose={() => setShowGallery(false)}>
-                      <GalleryView onClose={() => setShowGallery(false)} />
-                    </GalleryErrorBoundary>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <GalleryErrorBoundary onClose={() => setShowGallery(false)}>
+                        <GalleryView onClose={() => setShowGallery(false)} />
+                      </GalleryErrorBoundary>
+                    </Suspense>
                   )}
                 </AnimatePresence>
               </div>

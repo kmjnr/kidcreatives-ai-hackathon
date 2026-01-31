@@ -1,4 +1,5 @@
 import type { QuestionGenerationResult, PromptVariable } from '@/types/PromptState'
+import type { GeminiResponse, GeminiContentPart } from '@/types/GeminiTypes'
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
 
@@ -108,7 +109,7 @@ Generate the question:`
       throw new Error(errorMessage)
     }
 
-    const data = await response.json()
+    const data: GeminiResponse = await response.json()
 
     if (!data.candidates || !Array.isArray(data.candidates) || data.candidates.length === 0) {
       throw new Error('No candidates in API response')
@@ -119,7 +120,9 @@ Generate the question:`
       throw new Error('Invalid candidate structure in API response')
     }
 
-    const textPart = candidate.content.parts.find((part: any) => part.text)
+    const textPart = candidate.content.parts.find(
+      (part: GeminiContentPart) => part.text
+    )
     if (!textPart || !textPart.text) {
       throw new Error('No text response in API result')
     }
