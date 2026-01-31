@@ -19,6 +19,183 @@
 
 ## Development Timeline
 
+### Day 0 - January 5-27, 2026: Preparation & Learning Phase
+
+#### Environment Setup & Technical Challenges
+
+**Background**: No prior experience with Kiro CLI or Linux environments. Working on Windows computer.
+
+##### Challenge 1: WSL and Ubuntu Installation
+- **Issue**: Needed to install Ubuntu on Windows for Kiro CLI compatibility
+- **Solution**: Used Perplexity AI to guide through WSL (Windows Subsystem for Linux) installation
+- **Complexity**: Required enabling Virtualization in BIOS settings
+- **Outcome**: Successfully installed Ubuntu environment
+
+##### Challenge 2: BIOS Configuration Error
+- **Issue**: While enabling Virtualization in BIOS, accidentally modified other settings
+- **Impact**: System encountered bluescreen error (0xc0000001) during boot
+- **Recovery**: Used Perplexity AI to diagnose and troubleshoot the boot error
+- **Resolution**: Restored correct BIOS settings and system booted successfully
+- **Lesson**: BIOS changes require careful attention; document original settings before modifications
+
+##### Challenge 3: Kiro CLI Learning Curve
+- **Issue**: Unfamiliar with CLI-based development workflows
+- **Approach**: Studied Kiro CLI documentation and experimentation
+- **Tools Used**: Perplexity AI for troubleshooting and understanding concepts
+
+---
+
+#### Market Research & Ideation (3 days)
+
+##### Problem Discovery
+- Researched educational technology gaps for children
+- Identified need for AI literacy education in age-appropriate format
+- Explored how children learn technical concepts through visual feedback
+
+##### Opportunity Identified
+- Children use AI tools but don't understand how they work
+- Existing AI art generators are "black boxes" with no educational value
+- Gap: No tools teaching prompt engineering to young children (7-10 years)
+
+##### Solution Concept
+- Transform AI from mysterious "black box" to transparent "glass box"
+- Visual prompt construction showing how decisions become AI instructions
+- 5-phase educational workflow: Analyze → Build → Generate → Refine → Trophy
+- Phygital rewards: Digital trophies + printable certificates proving learning
+
+---
+
+#### Project Inception & Planning
+
+##### Product Vision Defined
+- **Target Audience**: Children aged 7-10, parents, educators
+- **Core Value**: Teach prompt engineering through creative art generation
+- **Unique Approach**: Visual code blocks showing prompt construction in real-time
+- **Educational Goal**: AI literacy and understanding, not just art creation
+
+##### Tech Stack Selection
+- **Initial Choice**: Next.js + Gemini AI
+- **Rationale**: 
+  - Next.js for full-stack capabilities
+  - Gemini 2.5 Flash for vision, text, and image generation
+  - Supabase for backend (auth, database, storage)
+- **Later Pivot**: Switched to React + Vite for faster development iteration
+
+##### Core Concept Development
+- 5-phase educational workflow designed
+- "Constructivist Pop" design system conceptualized
+- Color-coded prompt variables for visual learning
+- Sparky AI coach character created for guidance
+
+---
+
+#### First Attempt: Learning Through Failure (3 days)
+
+##### Initial Development Approach
+- **Mistake**: Started building immediately without proper Kiro CLI setup
+- **Missing**: No custom agents configured for project-specific needs
+- **Missing**: No steering documents defining project context
+- **Missing**: No custom prompts for systematic workflow
+
+##### Challenges Encountered
+- **Errors**: Frequent build errors and dependency conflicts
+- **Hallucinations**: AI assistant provided inconsistent or incorrect code
+- **Context Loss**: AI couldn't maintain understanding of project architecture
+- **Frustration**: Spent 3 days debugging issues caused by lack of structure
+- **Realization**: Kiro CLI requires proper configuration to be effective
+
+##### Critical Learning Moment
+- **Discovery**: Steering documents and custom agents are essential, not optional
+- **Understanding**: Global rules provide AI with project context and constraints
+- **Insight**: Proper setup saves exponentially more time than it takes to configure
+
+##### Decision to Restart
+- **Action**: Deleted entire project and started fresh
+- **Rationale**: Better to rebuild with proper foundation than continue with technical debt
+- **Confidence**: Lessons learned from first attempt would make second attempt smoother
+- **Outcome**: Correct decision - second attempt was significantly more efficient
+
+---
+
+#### Second Attempt: Proper Setup (Day 0 Final Phase)
+
+##### Kiro CLI Configuration
+1. **Steering Documents Created**
+   - `product.md`: Product vision, 5-phase workflow, target users
+   - `tech.md`: Technology stack, architecture, MCP servers
+   - `structure.md`: Directory layout, naming conventions, file organization
+   - `testing-standards.md`: Testing philosophy, agent-browser usage
+
+2. **Custom Prompts Developed**
+   - `@prime`: Load comprehensive project context
+   - `@plan-feature`: Create detailed implementation plans
+   - `@execute`: Execute plans with task management
+   - `@code-review`: Quality assurance and bug detection
+   - `@update-devlog`: Maintain development log
+
+3. **Experimental Features Enabled**
+   - `/tangent` mode: Explore ideas without bloating main conversation
+   - `/knowledge` bases: Semantic search for large codebases
+   - `/checkpoint`: Track progress and enable experimentation
+   - `/thinking`: Show AI reasoning process
+
+##### Strategic Use of Tangent Mode
+- **Purpose**: Gain deeper understanding of project concepts without cluttering main chat
+- **Use Cases**:
+  - Exploring alternative architectural approaches
+  - Understanding Gemini API capabilities and limitations
+  - Researching educational psychology for children
+  - Investigating animation libraries and design patterns
+- **Benefit**: Kept main development conversation focused and efficient
+
+##### MCP Servers Configured
+- **Context7**: Up-to-date library documentation (React, Gemini, Supabase)
+- **Supabase MCP**: OAuth-authenticated database operations
+- **agent-browser**: Automated visual testing (steering-based)
+
+---
+
+#### Key Lessons from Day 0
+
+1. **Preparation is Critical**
+   - Proper Kiro CLI setup saves exponentially more time than it takes
+   - Steering documents are the foundation of effective AI assistance
+   - Custom prompts create systematic, repeatable workflows
+
+2. **Failure is Learning**
+   - First attempt taught invaluable lessons about project structure
+   - 3 days of struggle led to much smoother second attempt
+   - Technical debt compounds quickly - better to restart with solid foundation
+
+3. **Tools Require Understanding**
+   - Kiro CLI is powerful but requires proper configuration
+   - Experimental features like `/tangent` are game-changers when used correctly
+   - MCP servers extend capabilities significantly
+
+4. **Environment Matters**
+   - WSL setup was challenging but necessary for Kiro CLI
+   - BIOS issues taught importance of careful system configuration
+   - Having proper development environment is prerequisite for success
+
+5. **AI Assistance Needs Context**
+   - Without steering documents, AI provides generic solutions
+   - With proper context, AI becomes project-specific expert
+   - Quality of AI assistance directly correlates with quality of setup
+
+---
+
+**Day 0 Summary**:
+- **Duration**: ~5 days (January 5-27)
+- **Environment Setup**: 1 day (WSL, Ubuntu, BIOS troubleshooting)
+- **Research & Planning**: 1 day (market research, ideation, tech stack)
+- **First Attempt**: 3 days (learned through failure)
+- **Proper Setup**: 1 day (steering docs, custom prompts, MCP servers)
+- **Key Outcome**: Ready to build with proper foundation and clear understanding
+
+**Status at End of Day 0**: ✅ Fully prepared with proper Kiro CLI configuration, clear product vision, and lessons learned from initial failures
+
+---
+
 ### Day 1 - January 28, 2026
 
 #### Session 1: Project Setup (18:30 - 19:10)
